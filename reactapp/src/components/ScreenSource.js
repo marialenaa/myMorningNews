@@ -13,7 +13,6 @@ var reponseApi = await fetch('https://newsapi.org/v2/sources?language=fr&country
 var repjson = await reponseApi.json()
 setsourceList(repjson.sources)
 }fetchData()},[])
-console.log(sourceList)
 
   return (
     <div>
