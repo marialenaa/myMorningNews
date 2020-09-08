@@ -2,6 +2,8 @@ import React from 'react';
 import '../App.css';
 import Nav from '../components/Nav'
 import { Card, Icon} from 'antd';
+import { connect } from 'react-redux';
+
 
 const { Meta } = Card;
 
@@ -15,6 +17,8 @@ function ScreenMyArticles(props) {
     {name:"Gilets Jaune", description: 'Encore un samedi agité en IDF selon...',img:'./images/giletjaune.jpg',content:"Selon une information de La Provence, ce samedi, deux « gilets jaunes » ont été interptions par les manifestants. En novembre, une dizaine de personnes avait ainsi été interpellée par la police après le saccage du péage et un incendie volontaire."}
   ]
 
+
+
   return (
     <div>
          
@@ -22,10 +26,53 @@ function ScreenMyArticles(props) {
 
             <div className="Banner"/>
 
-            <div className="Card">
+            <div className="Card" >
     
+                  {props.articlesLiked.map((article, i) => (
+                    <div key={i} style={{display:'flex',justifyContent:'center'}}>
 
-                    <div  style={{display:'flex',justifyContent:'center'}}>
+                    <Card
+                      
+                      style={{ 
+                      width: 300, 
+                      margin:'15px', 
+                      display:'flex',
+                      flexDirection: 'column',
+                      justifyContent:'space-between' }}
+                      cover={
+                      <img
+                          alt="example"
+                          src={article.urlToImage}
+                      />
+                      }
+                      actions={[
+                      ]}
+                      >
+  
+                      <Meta
+                        title={article.title}
+                        description={article.description}
+                      />
+  
+                    </Card>
+                    {/* <Modal
+                        title={read.name}
+                        visible={visible}
+                        onOk={()=>handleOk(jailu)}
+                        onCancel={()=>handleCancel()}
+                        footer={[
+                          <Button key="back" onClick={()=>handleCancel()}> Retour </Button>,
+                          <Button key='submit' type="default" loading={loading} onClick={()=>handleOk()}> J'ai lu </Button>
+                        ]}
+                      >
+                        <p>{read.content}</p>
+                      </Modal> */}
+  
+                  </div>
+  
+                  ))}
+
+                    {/* <div  style={{display:'flex',justifyContent:'center'}}>
                       <Card
                         style={{  
                           width: 300, 
@@ -53,24 +100,20 @@ function ScreenMyArticles(props) {
                         />
 
 
-                  
                       </Card>
 
-
-                    </div>
-
-
-
+                    </div>  */}
        
-
-                
-
              </div>
-      
  
-
       </div>
   );
 }
+function mapStateToProps(state){
+  return {articlesLiked : state.wishList}
+}
 
-export default ScreenMyArticles;
+export default connect(
+  mapStateToProps,
+  null
+)(ScreenMyArticles);

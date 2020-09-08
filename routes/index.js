@@ -9,44 +9,73 @@ router.get('/', function(req, res, next) {
 
 router.post('/signup', async function(req, res, next) {
   var result = false
+  var error = []
   var autorise = false
+  var saveUser
+  var newUser
+
   if(req.body.userName && req.body.pw && req.body.email){
+    console.log(req.body.userName ,req.body.pw ,req.body.email)
+
     autorise = true
     console.log('autorise')
   }
   var alreadyExist = await userModel.findOne({userName:req.body.userName})
   console.log(alreadyExist)
-  if(autorise && !alreadyExist ){
-    var newUser = await new userModel({
-      userName: req.body.userName,
-      pw:req.body.pw,
-      email:req.body.email
-    })
-    await newUser.save()
-    result = true
-  }else{
-    res.redirect('/')
+  if(!autorise){
+    error.push('tout les champs de saisies doivent être renseignés')
   }
-  res.json({result});
+  if(alreadyExist !== null){
+    error.push('Utilisateur deja enregistré')
+  }
+  
+  if(error.length === 0){
+    console.log('no error')
+    newUser = await new userModel({
+    userName: req.body.userName,
+    pw:req.body.pw,
+    email:req.body.email
+  })
+  saveUser = await newUser.save()
+}
+  if(saveUser){
+    result = true
+  }
+  res.json({result, error});
 });
 
 router.post('/signin', async function(req, res, next) {
   var result = false
-  var findUser = await userModel.findOne({
-    pw:req.body.pw,
-    email:req.body.email, 
-  })
+  var error = []
+  var autorise = false
+
+  if(req.body.pw && req.body.email){
+    autorise = true
+    console.log('autorise')
+  }else{
+    error.push('Remplissez tout les champs')
+  }
+  
+  if(error.length === 0){
+    var findUser = await userModel.findOne({
+      pw:req.body.pw,
+      email:req.body.email, 
+    })
+  }
   console.log(findUser)
- if(findUser !== undefined){
+ 
+  if(findUser !== null){
    result = true
+ }else{
+   error.push('Email et/ou mot de passe incorects !')
  }
-  res.json({result});
+  res.json({result, error});
 });
 
-router.get('/users', async function(req, res, next) {
-  var users =  await userModel.find()
+// router.get('/users', async function(req, res, next) {
+//   var users =  await userModel.find()
 
-  res.json({users});
-});
+//   res.json({users});
+// });
 
 module.exports = router;
