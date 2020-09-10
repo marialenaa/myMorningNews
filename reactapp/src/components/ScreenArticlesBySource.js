@@ -22,12 +22,8 @@ function ScreenArticlesBySource(props) {
     }
     findarticles()
     },[])
-    console.log(articlesList)
 
-  var color
-    // const addToWishList =()=> {
-    // console.log('clik')
-    // }
+  
   const showModal=(articleToRead)=>{
     console.log(articleToRead)
     setvisible(true)
@@ -47,11 +43,10 @@ function ScreenArticlesBySource(props) {
     };
 
   return (
-    <div>
+    <div >
          
             <Nav/>
-
-            <div className="Banner"/>
+            <div className = "HomeThemes" />
 
             <div className="Card">
     
@@ -83,12 +78,12 @@ function ScreenArticlesBySource(props) {
                         <img
                         style={{height: 160}}
                             alt="example"
-                            src={`${article.urlToImage}`}
+                            src={article.urlToImage}
                         />
                       }
                       actions={[
-                        <Icon style={{color:jailu, height:'10%'}} onClick={()=>showModal({title:article.title, content:article.content})} type="read" key="ellipsis2" />,
-                        <Icon onClick={() =>{props.addToWishList(article)}} type="like" key="ellipsis"/>
+                        <Icon style={{color:jailu, height:'10%',fontSize: 20}} onClick={()=>showModal({title:article.title, content:article.content})} type="eye" key="ellipsis2" />,
+                        <Icon style={{fontSize: 20}} onClick={() =>{props.addToWishList(article)}} type="paper-clip" key="ellipsis"/>
                       ]}
                     >                  
 
@@ -110,7 +105,6 @@ function ScreenArticlesBySource(props) {
                       <Button key='submit' type="default" loading={loading} onClick={()=>handleOk()}> J'ai lu </Button>
                     ]}
                   >
-                    {console.log(read.content)}
                     <div>
                       <p style={{height:'auto'}}>{read.content}</p>
                       </div>

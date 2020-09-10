@@ -2,10 +2,12 @@ import React from 'react';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import './App.css';
 
+import wishlist from './reducers/articles';
+import language from './reducers/language';
+import token from './reducers/token';
 import {Provider} from 'react-redux';
 import {createStore, combineReducers} from 'redux'
 
-import wishList from './reducers/articles';
 
 import ScreenHome from './components/ScreenHome';
 import ScreenArticlesBySource from './components/ScreenArticlesBySource';
@@ -13,7 +15,7 @@ import ScreenSource from './components/ScreenSource';
 import ScreenMyArticles from './components/ScreenMyArticles';
 
 
-const store = createStore(combineReducers({wishList}))
+const store = createStore(combineReducers({wishlist,token,language}),window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 
 function App() {
   return (

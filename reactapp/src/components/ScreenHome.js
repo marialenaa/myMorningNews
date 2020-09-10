@@ -6,9 +6,10 @@ import {
 } 
 from 'antd';
 import {Redirect } from 'react-router-dom'
+import { connect } from 'react-redux';
 
 
-function ScreenHome() {
+function ScreenHome(props) {
   const [pw, setpw] = useState('') 
   const [email, setemail] = useState('')
 
@@ -26,7 +27,7 @@ function ScreenHome() {
 
   const  handleInputValidationPw= (val) => {
     setpwSup(val)
-    if(val.length < 8){
+    if(val.length < 2){
         setpwValidation("8 caractères minimum")
       }else{
         setpwValidation("")
@@ -35,7 +36,7 @@ function ScreenHome() {
     
     const  handleInputValidationUserName= (val) => {
       setuserNameSup(val)
-      if(val.length < 8){
+      if(val.length < 2){
        setNameValidation("6 caractères minimum")
         }else{
           setNameValidation("")
@@ -44,7 +45,7 @@ function ScreenHome() {
 
       const  handleInputValidationEmail= (val) => {
         setemailSup(val)
-        if(val.length < 8){
+        if(val.length < 2){
          setEmailValidation("veuillez saisir un Email valide")
           }else{
             setEmailValidation("")
@@ -60,7 +61,8 @@ function ScreenHome() {
         body: `userName=${userNameSup}&pw=${pwSup}&email=${emailSup}`
       })
       const body = await reqDataUsers.json()
-      if(body.result === true){
+      if(body.result === true && body.token){
+        props.tokenUser(body.token)
         setIsLogin(true)
       }else{
         seterrSU(body.error)
@@ -82,18 +84,16 @@ function ScreenHome() {
           body:`pw=${pw}&email=${email}`
           })
         const body = await findUser.json()
-        if(body.result === true){
-          console.log(body.result,'true.result')
+        if(body.result === true && body.token){
           setIsLogin(true)
+
+          props.tokenUser(body.token)
         }else{
-          console.log(body.error)
           seterrSI(body.error)
-          setemail('')
           setpw('')
         }
     }
 
-   console.log('islogin',isLogin, errSI,errSU)
   if(isLogin === true){
     return (<Redirect to='/source' />)
   }
@@ -115,7 +115,7 @@ function ScreenHome() {
                     placeholder="me@example.org" 
                     onChange={(e)=>setemail(e.target.value)} 
                     value={email}
-                    type={'email'}   
+                    // type={'email'}   
                     required                    
                     />
   
@@ -143,8 +143,8 @@ function ScreenHome() {
                     placeholder="UserName" 
                     onChange={(e)=>handleInputValidationUserName(e.target.value)} 
                     value={userNameSup} 
-                    minLength={6}   
-                    maxLength={14}  
+                    // minLength={6}   
+                    // maxLength={14}  
                     required              
                     />
 
@@ -153,8 +153,8 @@ function ScreenHome() {
                     placeholder="password" 
                     onChange={(e) => handleInputValidationPw(e.target.value)} 
                     value={pwSup} 
-                    minLength={8}   
-                    maxLength={14} 
+                    // minLength={8}   
+                    // maxLength={14} 
                     required     
                     />
   
@@ -177,4 +177,16 @@ function ScreenHome() {
     )
   }
   
-export default ScreenHome;
+function mapDispatchToProps(dispatch){
+  return {
+    tokenUser: function(tokenAdded){
+      dispatch({ type: 'addToken',
+      tokenAdded : tokenAdded})
+    }
+  }
+}
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(ScreenHome);

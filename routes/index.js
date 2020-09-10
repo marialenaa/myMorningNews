@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var userModel = require('../models/users')
+var SHA256 = require("crypto-js/sha256");
+var encBase64 = require("crypto-js/enc-base64");
+var uid2 = require("uid2")
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -13,15 +16,12 @@ router.post('/signup', async function(req, res, next) {
   var autorise = false
   var saveUser
   var newUser
+  var salt = uid2(32)
 
   if(req.body.userName && req.body.pw && req.body.email){
-    console.log(req.body.userName ,req.body.pw ,req.body.email)
-
     autorise = true
-    console.log('autorise')
   }
   var alreadyExist = await userModel.findOne({userName:req.body.userName})
-  console.log(alreadyExist)
   if(!autorise){
     error.push('tout les champs de saisies doivent être renseignés')
   }
@@ -33,15 +33,18 @@ router.post('/signup', async function(req, res, next) {
     console.log('no error')
     newUser = await new userModel({
     userName: req.body.userName,
-    pw:req.body.pw,
-    email:req.body.email
+    pw: SHA256(req.body.pw + salt).toString(encBase64),
+    email:req.body.email,
+    salt: salt,
+    token: uid2(32)
   })
   saveUser = await newUser.save()
 }
+let token = newUser.token
   if(saveUser){
     result = true
   }
-  res.json({result, error});
+  res.json({result, error, token});
 });
 
 router.post('/signin', async function(req, res, next) {
@@ -51,25 +54,23 @@ router.post('/signin', async function(req, res, next) {
 
   if(req.body.pw && req.body.email){
     autorise = true
-    console.log('autorise')
   }else{
     error.push('Remplissez tout les champs')
   }
   
   if(error.length === 0){
     var findUser = await userModel.findOne({
-      pw:req.body.pw,
       email:req.body.email, 
     })
-  }
-  console.log(findUser)
- 
-  if(findUser !== null){
-   result = true
- }else{
+    var hash = SHA256(req.body.pw + findUser.salt).toString(encBase64);
+    if(hash === findUser.pw){
+      result = true
+    }
+  }else{
    error.push('Email et/ou mot de passe incorects !')
  }
-  res.json({result, error});
+ let token = findUser.token
+  res.json({result, error, token});
 });
 
 // router.get('/users', async function(req, res, next) {

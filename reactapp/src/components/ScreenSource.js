@@ -3,25 +3,35 @@ import '../App.css';
 import { Link } from 'react-router-dom'
 import Nav from '../components/Nav'
 import { List, Avatar } from 'antd';
+import { connect } from 'react-redux';
 
-function ScreenSource() {
+function ScreenSource(props) {
     const [sourceList, setsourceList] = useState([])
+    
+    let country 
+    if(props.language === 'en'){
+        country = 'us'
+    }else if(props.language === 'it' || 'es'){
+        country = props.language
+    }else{
+        country = 'fr'
+    }
+
 
     useEffect(() => {
         const fetchData = async() => {
-            var reponseApi = await fetch('https://newsapi.org/v2/sources?language=fr&country=fr&apiKey=2029b89e2d014f0ab0b04f76b694cb28')
+            var reponseApi = await fetch(`https://newsapi.org/v2/sources?language=${props.language}&apiKey=2029b89e2d014f0ab0b04f76b694cb28`)
             var repjson = await reponseApi.json()
             setsourceList(repjson.sources)
+            console.log(sourceList)
         }
         fetchData()
 
-    }, [])
+    }, [props.language])
 
 
     return ( <div>
         <Nav />
-
-        <div className = "Banner" />
 
         <div className = "HomeThemes" />
 
@@ -44,4 +54,11 @@ function ScreenSource() {
         );
     }
 
-    export default ScreenSource;
+    function mapStateToProps(state){
+        return{language:state.language}
+    }
+
+    export default connect(
+        mapStateToProps,
+        null
+    )(ScreenSource);
