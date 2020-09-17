@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 
 
 function ScreenHome(props) {
+  
   const [pw, setpw] = useState('') 
   const [email, setemail] = useState('')
 
@@ -24,10 +25,9 @@ function ScreenHome(props) {
   const [nameValidation, setNameValidation] = useState('')
   const [pwValidation, setpwValidation] = useState('')
 
-
   const  handleInputValidationPw= (val) => {
     setpwSup(val)
-    if(val.length < 2){
+    if(val.length < 8){
         setpwValidation("8 caractères minimum")
       }else{
         setpwValidation("")
@@ -36,7 +36,7 @@ function ScreenHome(props) {
     
     const  handleInputValidationUserName= (val) => {
       setuserNameSup(val)
-      if(val.length < 2){
+      if(val.length < 6){
        setNameValidation("6 caractères minimum")
         }else{
           setNameValidation("")
@@ -45,23 +45,24 @@ function ScreenHome(props) {
 
       const  handleInputValidationEmail= (val) => {
         setemailSup(val)
-        if(val.length < 2){
+        if(val.length < 8){
          setEmailValidation("veuillez saisir un Email valide")
           }else{
             setEmailValidation("")
           }
         }
 
-  var handleSignUp = async () =>{
-
+  const handleSignUp = async () =>{
     if(!emailValidation && !pwValidation && !nameValidation){
       const reqDataUsers = await fetch('/signup',{
         method:'POST',
         headers:{'Content-Type':'application/x-www-form-urlencoded'},
         body: `userName=${userNameSup}&pw=${pwSup}&email=${emailSup}`
       })
+
       const body = await reqDataUsers.json()
       if(body.result === true && body.token){
+        console.log(body)
         props.tokenUser(body.token)
         setIsLogin(true)
       }else{
@@ -77,26 +78,30 @@ function ScreenHome(props) {
     }
   }
 
-  var handlesignin = async() =>{
+  const handlesignin = async() =>{
     const findUser = await fetch('/signin',{
           method:'POST',
           headers: {'Content-Type':'application/x-www-form-urlencoded'},
           body:`pw=${pw}&email=${email}`
           })
         const body = await findUser.json()
-        if(body.result === true && body.token){
+        console.log(body.findUser.articlesUser)
+        if(body.findUser.articlesUser){
+          props.addWishlist(body.findUser.articlesUser)
+        }
+        if(body.result === true && body.findUser.token){
           setIsLogin(true)
-
-          props.tokenUser(body.token)
+          props.tokenUser(body.findUser.token)          
         }else{
           seterrSI(body.error)
           setpw('')
         }
-    }
-
-  if(isLogin === true){
-    return (<Redirect to='/source' />)
   }
+
+  if(isLogin === true && props.token){
+    return <Redirect to='/source' />
+  }
+ 
 
   var tabERRsi = errSI.map((error,i) => {
     return(<p key={i} >{error}</p>)
@@ -115,7 +120,7 @@ function ScreenHome(props) {
                     placeholder="me@example.org" 
                     onChange={(e)=>setemail(e.target.value)} 
                     value={email}
-                    // type={'email'}   
+                    type={'email'}   
                     required                    
                     />
   
@@ -143,8 +148,8 @@ function ScreenHome(props) {
                     placeholder="UserName" 
                     onChange={(e)=>handleInputValidationUserName(e.target.value)} 
                     value={userNameSup} 
-                    // minLength={6}   
-                    // maxLength={14}  
+                    minLength={6}   
+                    maxLength={14}  
                     required              
                     />
 
@@ -153,8 +158,8 @@ function ScreenHome(props) {
                     placeholder="password" 
                     onChange={(e) => handleInputValidationPw(e.target.value)} 
                     value={pwSup} 
-                    // minLength={8}   
-                    // maxLength={14} 
+                    minLength={8}   
+                    maxLength={14} 
                     required     
                     />
   
@@ -179,14 +184,22 @@ function ScreenHome(props) {
   
 function mapDispatchToProps(dispatch){
   return {
-    tokenUser: function(tokenAdded){
+    addWishlist: function(receptionWishlistDB){
+      dispatch({type: "addWishlistFromDB",
+      wishlist : receptionWishlistDB })
+  },
+    tokenUser: function(token){
       dispatch({ type: 'addToken',
-      tokenAdded : tokenAdded})
+      token : token})
     }
   }
 }
 
+function mapStateToProps(state){
+  return{token : state.token}
+}
+
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(ScreenHome);

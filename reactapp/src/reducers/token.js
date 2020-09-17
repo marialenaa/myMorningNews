@@ -1,7 +1,9 @@
 export default function(token = '', action){
     if(action.type === 'addToken'){
-console.log(action)        
-return action.tokenAdded
+return action.token
+    }else if(action.type === 'resetTokenType'){
+        let tokenCopy = undefined
+        return tokenCopy
     }else{
         return token
     }

@@ -2,8 +2,10 @@ import React , {useState,useEffect} from 'react';
 import '../App.css';
 import 'antd/dist/antd.css';
 import Nav from '../components/Nav'
-import {Icon, List, Modal,Button,Card} from 'antd';
+import {List, Modal,Button,Card} from 'antd';
 import { connect } from 'react-redux';
+import { EyeOutlined , PaperClipOutlined } from '@ant-design/icons';
+
 const { Meta } = Card;
 
 function ScreenArticlesBySource(props) {
@@ -13,6 +15,7 @@ function ScreenArticlesBySource(props) {
   const [loading, setloading] = useState(false)
   const [read, setread] = useState('')
   const [jailu, setjailu] = useState('')
+  const [color, setColor] = useState('')
 
   useEffect(() =>{
     const findarticles = async() =>{
@@ -22,10 +25,19 @@ function ScreenArticlesBySource(props) {
     }
     findarticles()
     },[])
+    
+  const addWishlist = async (article) =>{ 
+      props.addToWishList(article)
+    const postArticle = await fetch('/add-article',{
+    method : 'POST',
+    headers : {'Content-Type':'application/x-www-form-urlencoded'},
+    body : `title=${article.title}&description=${article.description}&content=${article.content}&urlToImage=${article.urlToImage}&token=${props.token}`
+      }
+    )
+  }
 
   
   const showModal=(articleToRead)=>{
-    console.log(articleToRead)
     setvisible(true)
     setread({name:articleToRead.title, content:articleToRead.content})
     }
@@ -45,19 +57,16 @@ function ScreenArticlesBySource(props) {
   return (
     <div >
          
-            <Nav/>
-            <div className = "HomeThemes" />
+        <Nav/>
+            <div className = "HomeThemes">
 
-            <div className="Card">
-    
-              <div  style={{display:'flex',justifyContent:'center'}}>
               <List
               grid={{
                 gutter: 12,
                 xs: 1,
                 md: 2,
                 lg: 3,
-                xl: 4,
+                xl: 3,
                 xxl: 4,
               }}
                   itemLayout="horizotal"
@@ -68,28 +77,29 @@ function ScreenArticlesBySource(props) {
                       key={i}
                       item={article}
                       style={{ 
-                        width: 300,
-                        height:370,
-                        margin:'25px', 
+                        width: 320,
+                        height:410,
+                        margin:'10px', 
                         display:'flex',
                         flexDirection: 'column',
                         justifyContent:'space-between' }}
                       cover={
                         <img
-                        style={{height: 160}}
+                        style={{height: 190}}
                             alt="example"
                             src={article.urlToImage}
                         />
                       }
                       actions={[
-                        <Icon style={{color:jailu, height:'10%',fontSize: 20}} onClick={()=>showModal({title:article.title, content:article.content})} type="eye" key="ellipsis2" />,
-                        <Icon style={{fontSize: 20}} onClick={() =>{props.addToWishList(article)}} type="paper-clip" key="ellipsis"/>
+                        <EyeOutlined style={{color:jailu, fontSize: 20}} key="ellipsis2" onClick={()=>showModal({title:article.title, content:article.content})}  />,
+                        <PaperClipOutlined  style={{fontSize: 20, color:`${color}`}} onClick={() =>{addWishlist(article)}} key="ellipsis"/>
                       ]}
                     >                  
 
                   <Meta
+                    style={{fontSize: '0.8em'}}
                     title={article.title}
-                    description={article.description.substring(0, 150) + "..."}
+                    description={article.description}
                     />
                 </Card>
                 </List.Item>
@@ -110,22 +120,26 @@ function ScreenArticlesBySource(props) {
                       </div>
                   </Modal>
               </div>
-            </div> 
-
-      </div>
+          </div> 
   );
 }
 
 function mapDispatchToProps(dispatch){
   return{
     addToWishList: function(article){
-      dispatch({type: 'addArticle',
-    articleLiked: article})
-    }
+      dispatch({ type: 'addArticle',
+      articleLiked: article })
+    },
+  }
+}
+
+function mapStateToProps(state){
+  return{token:state.token,
+    wishlist : state.wishlist
   }
 }
 
 export default connect(
-  null,
-  mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps,
 )(ScreenArticlesBySource);

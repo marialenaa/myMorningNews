@@ -2,39 +2,27 @@ import React, { useState, useEffect } from 'react';
 import '../App.css';
 import { Link } from 'react-router-dom'
 import Nav from '../components/Nav'
-import { List, Avatar } from 'antd';
+import { List, Avatar} from 'antd';
 import { connect } from 'react-redux';
 
 function ScreenSource(props) {
-    const [sourceList, setsourceList] = useState([])
+    const [sourceList, setsourceList] = useState()
     
-    let country 
-    if(props.language === 'en'){
-        country = 'us'
-    }else if(props.language === 'it' || 'es'){
-        country = props.language
-    }else{
-        country = 'fr'
-    }
-
-
     useEffect(() => {
-        const fetchData = async() => {
+        const fetchData = async() => {   
             var reponseApi = await fetch(`https://newsapi.org/v2/sources?language=${props.language}&apiKey=2029b89e2d014f0ab0b04f76b694cb28`)
             var repjson = await reponseApi.json()
             setsourceList(repjson.sources)
-            console.log(sourceList)
         }
         fetchData()
+    },[props.language])
 
-    }, [props.language])
 
-
-    return ( <div>
+    return ( 
+    <div>
         <Nav />
 
-        <div className = "HomeThemes" />
-
+        <div className = "HomeThemes">
         <List itemLayout = "horizontal"
         dataSource = { sourceList }
         renderItem = {
@@ -50,15 +38,31 @@ function ScreenSource(props) {
                 )
             }
             />  
+            </div> 
             </div >
         );
     }
 
+    // function mapDispatchToProps(dispatch){
+    //     return{
+    //         getWishlistFunc: function(wishlist){
+    //             console.log(wishlist)
+    //             dispatch({type: 'getWishlist',
+    //             wishlist: wishlist})
+    //         }
+    //     }
+    // }
+
+    
+
     function mapStateToProps(state){
-        return{language:state.language}
+        return{language:state.language ,
+            token : state.token
+        }
     }
 
     export default connect(
         mapStateToProps,
-        null
+        null,
+        
     )(ScreenSource);

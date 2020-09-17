@@ -42,8 +42,8 @@ h4 {
 }
 
 .HomeThemes{
-  margin-left: 50px;
-  margin-right: 50px;
+  margin-left: 40px;
+  margin-right: 40px;
   margin-top: 20px;
 }
 
@@ -60,7 +60,6 @@ h4 {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-
 }
 
 body{

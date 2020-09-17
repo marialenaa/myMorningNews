@@ -1,59 +1,68 @@
 import React from 'react';
 import '../App.css';
 import Nav from '../components/Nav'
-import { Card, Icon, Result, Button} from 'antd';
+import { Card, Result, Button} from 'antd';
 import { connect } from 'react-redux';
-
-
+import { ReadOutlined , DeleteOutlined } from '@ant-design/icons';
 const { Meta } = Card;
 
 function ScreenMyArticles(props) {
-    
-    const handleRead = () => {
 
+    const handleClickCancel = async (title) => {
+      props.handleCancel(title)
+      const fetchDelete = await fetch('/delete',{
+        method:'DELETE',
+        headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: `token=${props.token}&title=${title}`
+      })
+    }
+
+    const handleRead = () => {
+      console.log('reaaaaaaaaaaaaad')
     }
 
   return (
     <div>
          
-            <Nav/>
-            <div className = "HomeThemes" />
-
+        <Nav/>
+                
             <div className="Card" >
-                  {props.articlesLiked.length === 0 ? 
+                  {props.wishlist.length === 0 ? 
                   <Result
                     title=" No articles in wishlist "
                     extra={ <Button type="primary" href='javascript:history.go(-1)' key="console"> Back to articles </Button>}
                     /> 
-                  : props.articlesLiked.map((article, i) => (
-                    <div key={i} style={{display:'flex',justifyContent:'center'}}>
-
+                  : props.wishlist.map((obj, i) => (
+                    <div className="Card" key={i} style={{display:'flex',justifyContent:'center'}}>
                     <Card
-                      
                       style={{ 
-                      width: 300, 
+                      width: 320, 
+                      height: 410,
                       margin:'15px', 
                       display:'flex',
                       flexDirection: 'column',
-                      justifyContent:'space-between' }}
+                      justifyContent:'space-between',
+                      }}
                       cover={
                       <img
                           alt="example"
-                          src={article.urlToImage}
+                          src={obj.urlToImage}
                       />
                       }
                       actions={[
-                        <Icon type="read" key="ellipsis2" onClick={()=>handleRead()} />,
-                        <Icon type="delete" key="ellipsis" onClick={()=>props.handleCancel(article)} />
+                        <ReadOutlined key="ellipsis2" style={{ fontSize: 25, color: '#08c' }} onClick={()=>handleRead()} />,
+                        <DeleteOutlined   key="ellipsis" style={{ fontSize: 25, color: '#08c' }} onClick={()=>handleClickCancel(obj.title)} />
                       ]}
                       >
   
                       <Meta
-                        title={article.title}
-                        description={article.description}
+                        style={{fontSize: '0.8em'}}
+                        title={obj.title}
+                        description={obj.description}
                       />
   
                     </Card>
+
                     {/* <Modal
                         title={read.name}
                         visible={visible}
@@ -72,19 +81,22 @@ function ScreenMyArticles(props) {
                   ))}
        
              </div>
- 
-      </div>
+           
+    </div> 
   );
 }
 function mapStateToProps(state){
-  return {articlesLiked : state.wishlist}
+  return {
+    wishlist : state.wishlist, 
+    token: state.token
+  }
 }
 
 function mapDispatchToProps(dispatch){
   return {
-    handleCancel: function(article){
+    handleCancel: function(title){
       dispatch( {type: 'deleteArticle',
-      articleCanceled : article
+      articleCanceled : title
     } )
     }
   }

@@ -1,36 +1,52 @@
-import React, {useEffect} from 'react';
-import {Link} from 'react-router-dom';
+import React, {useState} from 'react';
+import {Link, Redirect} from 'react-router-dom';
 import '../App.css';
-import {Menu, Icon, Avatar, List} from 'antd'
+import {Menu, Avatar, List, Badge} from 'antd';
 import { connect } from 'react-redux';
+import 'antd/dist/antd.css';
+import { LeftSquareOutlined, MenuOutlined, PoweroffOutlined, PaperClipOutlined } from '@ant-design/icons';
 
 function Nav(props) {
 
   const language = ['en','fr','it', 'es' ]
-  // const handleLanguage = ()=>{
-  //     let language
-  //     fetch(`https://newsapi.org/v2/sources?language=${language}&country=fr&apiKey=2029b89e2d014f0ab0b04f76b694cb28`)
-  // }
+  const [returnSource, setReturnSource] = useState(false)
+  const [show, setIsShown] = useState(false)
+  
+  const handleLanguage = (lang)=>{
+    props.changeLanguage(lang)  
+    setReturnSource(true)
+  }
 
+  if(show){
+  }
+  if(!props.token){
+    return  (<Redirect to='/' />)  
+}
+  if(returnSource && window.location.pathname != '/source'){
+    return <Redirect to='/source' />
+  }
+ 
   return (
     <nav >
         <Menu style={{textAlign: 'center'}} mode="horizontal" theme="dark">
 
             <Menu.Item key="source">
-                <a href='javascript:history.go(-1)'><Icon type="left-square" style={{ fontSize: 25, color: '#08c' }} />Précédent </a>
+                <a href='javascript:history.go(-1)'> <LeftSquareOutlined style={{ fontSize: 25, color: '#08c' }} /> Précédent </a>
               </Menu.Item>
 
               <Menu.Item key="mail">
-                <Link to='/source'><Icon type="bars"  style={{ fontSize: 20, color: '#f9ae75' }} />Sources</Link>
+                <Link to='/source'> <MenuOutlined style={{ fontSize: 25, color: '#08c' }} /> Sources</Link>
               </Menu.Item>
 
               <Menu.Item key="test">
-                <Link to='/myarticles'><Icon  style={{ fontSize: 20, color: '#f9ae75' }} type="paper-clip" />My favorites</Link>
+                <Link to='/myarticles'>  <Badge count={ props.wishlist.length }> <PaperClipOutlined style={{ fontSize: 25, color: '#08c' }} /> </Badge>   My favorites</Link>
               </Menu.Item>
               
               <Menu.Item key="app">
-                <Link to='/'><Icon type="logout" style={{ fontSize: 20, color: '#f9ae75' }} />Logout</Link>
+                   <Link to='/'><PoweroffOutlined onClick={()=>props.resetToken()} style={{ fontSize: 25, color: '#08c' }} /> Logout </Link>
               </Menu.Item>
+
+
 
         </Menu>
        
@@ -41,10 +57,8 @@ function Nav(props) {
             renderItem = {
                 (item, i) => ( 
                 <List.Item >
-                    <List.Item.Meta 
-                        avatar = {<Link onClick={()=>props.changeLanguage(language[i])}><Avatar style={{margin:10}} size={60} src={`/images/${item}.png`} /></Link>}
-                    /> 
-            </List.Item>
+                  {<Link onMouseOver={setIsShown(true)} style={{margin:10, }} onClick={()=> handleLanguage(language[i])}><Avatar  size={60} src={`/images/${item}.png`} /></Link>}
+                </List.Item>
             )
           }
           />  
@@ -54,17 +68,28 @@ function Nav(props) {
     </nav>
   );
 }
-
-function mapDispatchToProps(dispatch){
-  return{
-    changeLanguage: function(language){
-      dispatch({type:'changeLgg',
-    language:language})
-    }
+function mapStateToProps(state){
+  return {wishlist : state.wishlist,
+    token : state.token
   }
 }
 
+function mapDispatchToProps(dispatch){
+  return{
+   
+    changeLanguage: function(language){
+      dispatch({type:'changeLgg',
+    language:language})
+    },
+    resetToken: function(){
+      dispatch({type: 'resetTokenType'})
+    },
+  }
+}
+
+
+
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(Nav);
